@@ -15,6 +15,7 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class UserRegistrationService implements IUserRegistrationService{
+
     @Autowired
     private UserRegistrationRepository userRegistrationRepository;
 

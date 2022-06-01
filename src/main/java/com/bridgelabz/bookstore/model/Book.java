@@ -5,10 +5,9 @@ import lombok.Data;
 
 import javax.persistence.*;
 
-@Data
 @Entity
 @Table(name="book_db")
-public class Book {
+public @Data class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int bookId;

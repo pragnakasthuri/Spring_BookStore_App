@@ -29,7 +29,6 @@ public class UserRegistrationData {
     @Column
     private String password;
 
-
     public UserRegistrationData() {
 
     }

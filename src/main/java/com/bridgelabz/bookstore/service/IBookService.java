@@ -6,12 +6,19 @@ import com.bridgelabz.bookstore.model.Book;
 import java.util.List;
 
 public interface IBookService {
+
     List<Book> getBooks();
+
     Book addBook( BookDTO bookDTO);
+
     Book getBookById(int bookId);
+
     Book getBookByName(String bookName);
+
     Book updateBook(int bookId, BookDTO bookDTO);
+
     void deleteBook(int bookId);
+
     Book updateBookQuantityById(int bookId, int bookQuantity);
 
     List<Book> sortBooksByPriceAsc();

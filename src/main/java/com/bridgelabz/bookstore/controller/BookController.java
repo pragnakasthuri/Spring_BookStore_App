@@ -48,7 +48,6 @@ public class BookController {
         bookService.deleteBook(bookId);
         ResponseDTO responseDTO = new ResponseDTO("Delete call success for id ", "deleted id:" + bookId);
         return new ResponseEntity<ResponseDTO>(responseDTO, HttpStatus.OK);
-
     }
 
     @GetMapping("/getbyname/{bookName}")
@@ -65,7 +64,6 @@ public class BookController {
         log.debug(" After Update " + book.toString());
         ResponseDTO responseDTO = new ResponseDTO("Updated Book details successfully for Id " + bookId, book);
         return new ResponseEntity<ResponseDTO>(responseDTO, HttpStatus.OK);
-
     }
 
     @PutMapping("/updatequantity/{bookId}/{bookQuantity}")

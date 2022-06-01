@@ -2,8 +2,7 @@ package com.bridgelabz.bookstore.dto;
 
 import lombok.Data;
 
-public @Data
-class BookDTO {
+public @Data class BookDTO {
     public String bookName;
     public String bookAuthor;
     public String bookDescription;

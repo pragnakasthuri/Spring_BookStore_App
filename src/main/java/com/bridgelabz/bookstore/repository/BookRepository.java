@@ -13,6 +13,7 @@ public interface BookRepository  extends JpaRepository<Book,Integer> {
     Optional<Book> findByBookId(int bookId);
     Optional<Book> findByBookName(String bookName);
 
+
     @Query(value = "SELECT * FROM book_db order by book_price ASC", nativeQuery = true)
     List<Book> sortBooksByPriceAsc();
 

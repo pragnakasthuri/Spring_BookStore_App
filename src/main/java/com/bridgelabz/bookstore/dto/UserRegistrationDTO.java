@@ -5,8 +5,7 @@ import lombok.ToString;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 
-public @ToString
-class UserRegistrationDTO {
+public @ToString class UserRegistrationDTO {
     @NotEmpty(message = "First name cannot be empty")
     @Pattern(regexp = "^[A-Z]{1}[a-zA-Z]{2,}$", message = "Invalid first name")
     public String firstName;

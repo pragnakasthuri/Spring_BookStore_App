@@ -19,8 +19,8 @@ public class UserRegistrationExceptionHandler {
     public ResponseEntity<ResponseDTO> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
         List<ObjectError> errorList = exception.getBindingResult().getAllErrors();
         List<String> errorMessage = errorList.stream()
-                .map(objectError -> objectError.getDefaultMessage())
-                .collect(Collectors.toList());
+                                    .map(objectError -> objectError.getDefaultMessage())
+                                    .collect(Collectors.toList());
         ResponseDTO responseDTO = new ResponseDTO(message, errorMessage);
         return new ResponseEntity<ResponseDTO>(responseDTO, HttpStatus.BAD_REQUEST);
     }
