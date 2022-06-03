@@ -13,6 +13,8 @@ public interface IBookService {
 
     Book getBookById(int bookId);
 
+    Book getByAuthorName(String authorName);
+
     Book getBookByName(String bookName);
 
     Book updateBook(int bookId, BookDTO bookDTO);

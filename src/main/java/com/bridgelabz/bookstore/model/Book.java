@@ -13,8 +13,8 @@ public @Data class Book {
     private int bookId;
     @Column(name = "book_name")
     private String bookName;
-    @Column(name = "book_author")
-    private String bookAuthor;
+    @Column(name = "author_name")
+    private String authorName;
     @Column(name = "book_description")
     private String bookDescription;
     @Column(name = "book_logo")
@@ -33,7 +33,7 @@ public @Data class Book {
 
     public void updateBook(BookDTO bookDTO) {
         this.bookName = bookDTO.bookName;
-        this.bookAuthor = bookDTO.bookAuthor;
+        this.authorName = bookDTO.authorName;
         this.bookDescription = bookDTO.bookDescription;
         this.bookLogo = bookDTO.bookLogo;
         this.bookPrice = bookDTO.bookPrice;

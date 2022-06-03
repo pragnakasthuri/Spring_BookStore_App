@@ -11,6 +11,7 @@ import java.time.LocalDate;
 @Data
 public class UserRegistrationData {
     @Id
+    @SequenceGenerator(name = "your_table_id_seq", sequenceName = "your_table_id_seq")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int userId;
 

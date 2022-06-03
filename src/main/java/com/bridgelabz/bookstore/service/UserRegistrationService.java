@@ -1,12 +1,16 @@
 package com.bridgelabz.bookstore.service;
 
 import com.bridgelabz.bookstore.dto.LoginDTO;
+import com.bridgelabz.bookstore.dto.ResponseDTO;
 import com.bridgelabz.bookstore.dto.UserRegistrationDTO;
 import com.bridgelabz.bookstore.exception.UserRegistrationException;
 import com.bridgelabz.bookstore.model.UserRegistrationData;
 import com.bridgelabz.bookstore.repository.UserRegistrationRepository;
+import com.bridgelabz.bookstore.util.TokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +22,9 @@ public class UserRegistrationService implements IUserRegistrationService{
 
     @Autowired
     private UserRegistrationRepository userRegistrationRepository;
+
+    @Autowired
+    TokenUtil tokenUtil;
 
     @Override
     public List<UserRegistrationData> getUserRegistrationData() {
