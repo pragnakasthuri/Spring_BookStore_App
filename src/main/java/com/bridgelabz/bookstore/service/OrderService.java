@@ -1,0 +1,97 @@
+package com.bridgelabz.bookstore.service;
+
+import com.bridgelabz.bookstore.dto.OrderDTO;
+import com.bridgelabz.bookstore.exception.UserRegistrationException;
+import com.bridgelabz.bookstore.model.Book;
+import com.bridgelabz.bookstore.model.Order;
+import com.bridgelabz.bookstore.model.UserRegistrationData;
+import com.bridgelabz.bookstore.repository.OrderRepository;
+import com.bridgelabz.bookstore.repository.UserRegistrationRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+@Slf4j
+public class OrderService implements IOrderService {
+
+    @Autowired
+    UserRegistrationRepository userRegistrationRepository;
+
+    @Autowired
+    OrderRepository orderRepository;
+
+    @Autowired
+    UserRegistrationService userRegistrationService;
+
+    @Autowired
+    BookService bookService;
+
+    @Override
+    public Order placeOrder(int userId, OrderDTO orderDTO) {
+        Optional<UserRegistrationData> user = Optional.ofNullable(userRegistrationService.getUserRegistrationDataById(userId));
+        Optional<Book> book = Optional.ofNullable(bookService.getBookById(orderDTO.getBookId()));
+        if (user.isPresent()) {
+            Order order = new Order();
+            order.createOrder(orderDTO);
+            order.setTotalPrice(order.getQuantity() * book.get().getBookPrice());
+            order.setUser(user.get());
+            order.setBook(book.get());
+            return orderRepository.save(order);
+        }
+        return null;
+    }
+
+    @Override
+    public String cancelOrder(int orderId, int userId) {
+        Optional<UserRegistrationData> isPresent = userRegistrationRepository.findById(userId);
+        if (isPresent.isPresent()) {
+            Optional<Order> order = orderRepository.findById(orderId);
+            if (order.isPresent()) {
+                order.get().setCancel(true);
+                orderRepository.save(order.get());
+                return "Cancel order Successful";
+            }
+        }
+        return "cancel order not successful";
+    }
+
+    @Override
+    public Order getOrderById(int orderId) {
+        return orderRepository.findById(orderId).orElseThrow(()-> new UserRegistrationException("Get Call is not Successful"));
+    }
+
+    @Override
+    public List<Order> getOrders() {
+        List<Order> orders = orderRepository.findAll();
+        if (orders.isEmpty()) {
+            return null;
+        } else {
+            for (int i = 0; i < orders.size(); i++) {
+                int id = orders.get(i).getOrderId();
+                Optional<Order> orderByOrderId = orderRepository.findById(id);
+                if (orderByOrderId.isPresent()) {
+                    orderByOrderId.get().setCancel(false);
+                    orderRepository.save(orderByOrderId.get());
+                    return orders;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Order updateOrder(int orderId, OrderDTO order) {
+        Order order1 = orderRepository.findById(orderId).orElseThrow(() -> new UserRegistrationException("Order update failed"));
+        Optional<Book> book = Optional.ofNullable(bookService.getBookById(order.getBookId()));
+        order1.setCancel(order.isCancel());
+        order1.setTotalPrice(order.getQuantity() * book.get().getBookPrice());
+        order1.setQuantity(order.getQuantity());
+        order1.setAddress(order.getAddress());
+        orderRepository.save(order1);
+        return order1;
+    }
+}

@@ -5,6 +5,7 @@ import com.bridgelabz.bookstore.dto.ResponseDTO;
 import com.bridgelabz.bookstore.dto.UserRegistrationDTO;
 import com.bridgelabz.bookstore.model.UserRegistrationData;
 import com.bridgelabz.bookstore.service.IUserRegistrationService;
+import com.bridgelabz.bookstore.util.TokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,16 +25,22 @@ public class UserRegistrationController {
     @Autowired
     private IUserRegistrationService userRegistrationService;
 
+    @Autowired
+    private TokenUtil tokenUtil;
+
+
     @PostMapping("/register")
     public ResponseEntity<ResponseDTO> addUserRegistrationData(@Valid @RequestBody UserRegistrationDTO UserRegistrationDTO) {
-        UserRegistrationData userDetails = userRegistrationService.createUserRegistrationData(UserRegistrationDTO);
-        ResponseDTO responseDTO = new ResponseDTO("Added User Registration data Successfully", userDetails.getUserId());
+        UserRegistrationData userRegistrationData = userRegistrationService.createUserRegistrationData(UserRegistrationDTO);
+        String token = tokenUtil.createToken(userRegistrationData.getUserId());
+        ResponseDTO responseDTO = new ResponseDTO("Added User Registration data Successfully", userRegistrationData, token);
         return new ResponseEntity<ResponseDTO>(responseDTO, HttpStatus.OK);
     }
 
-    @PutMapping("/update/{userId}")
-    public ResponseEntity<ResponseDTO> updateUserRegistrationData(@PathVariable("userId") int userId,
+    @PutMapping("/update/{tokenId}")
+    public ResponseEntity<ResponseDTO> updateUserRegistrationData(@PathVariable("tokenId") String tokenId,
                                                                   @Valid @RequestBody UserRegistrationDTO userRegistrationDTO) {
+        int userId = tokenUtil.decodeToken(tokenId);
         UserRegistrationData userRegistrationData = userRegistrationService.updateUserRegistrationData(userId, userRegistrationDTO);
         ResponseDTO responseDTO = new ResponseDTO("Updated User Registration Data for Id", userRegistrationData);
         return new ResponseEntity<ResponseDTO>(responseDTO, HttpStatus.OK);

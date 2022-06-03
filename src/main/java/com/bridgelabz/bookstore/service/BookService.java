@@ -48,7 +48,13 @@ public class BookService implements IBookService {
     @Override
     public Book getBookByName(String bookName) {
         return bookRepository.findByBookName(bookName)
-                .orElseThrow(() -> new UserRegistrationException("Book does not exists"));
+                .orElseThrow(() -> new UserRegistrationException("Sorry Book does not exists"));
+    }
+
+    @Override
+    public Book getByAuthorName(String authorName) {
+        return bookRepository.findByAuthorName(authorName)
+                .orElseThrow(() -> new UserRegistrationException("Sorry Book does not exists"));
     }
 
     @Override

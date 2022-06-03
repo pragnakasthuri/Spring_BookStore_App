@@ -26,7 +26,7 @@ public class BookController {
         Book book = bookService.addBook(bookDTO);
         log.debug("Data" + book);
         ResponseDTO dto = new ResponseDTO("Book Added Successfully", book);
-        return new ResponseEntity<>(dto, HttpStatus.CREATED);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
     @GetMapping("/get")
@@ -46,14 +46,21 @@ public class BookController {
     @DeleteMapping("/delete/{bookId}")
     public ResponseEntity<ResponseDTO> deleteBook(@PathVariable("bookId") int bookId) {
         bookService.deleteBook(bookId);
-        ResponseDTO responseDTO = new ResponseDTO("Delete call success for id ", "deleted id:" + bookId);
+        ResponseDTO responseDTO = new ResponseDTO("Delete call successful for Id ", "deleted id:" + bookId);
         return new ResponseEntity<ResponseDTO>(responseDTO, HttpStatus.OK);
     }
 
     @GetMapping("/getbyname/{bookName}")
     public ResponseEntity<ResponseDTO> getBookByName(@PathVariable String bookName) {
         Book book = bookService.getBookByName(bookName);
-        ResponseDTO responseDTO = new ResponseDTO("Get call successful " + bookName, book);
+        ResponseDTO responseDTO = new ResponseDTO("Get call successful for " + bookName, book);
+        return new ResponseEntity<ResponseDTO>(responseDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("/getbyauthor/{authorName}")
+    public ResponseEntity<ResponseDTO> getBookByAuthorName(@PathVariable String authorName) {
+        Book book = bookService.getByAuthorName(authorName);
+        ResponseDTO responseDTO = new ResponseDTO("Get call successful for " + authorName, book);
         return new ResponseEntity<ResponseDTO>(responseDTO, HttpStatus.OK);
     }
 
