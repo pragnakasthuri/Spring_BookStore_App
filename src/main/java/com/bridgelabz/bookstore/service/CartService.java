@@ -28,6 +28,11 @@ public class CartService implements ICartService {
     @Autowired
     UserRegistrationRepository userRegistrationRepository;
 
+    /**
+     * Implemented addToCart method to add books and user in the cart
+     * @param cartDTO - passing cartDTO param
+     * @return
+     */
     @Override
     public Cart addToCart(CartDTO cartDTO) {
         Optional<UserRegistrationData> user = Optional.ofNullable(userRegistrationService.getUserRegistrationDataById(cartDTO.userId));
@@ -39,11 +44,21 @@ public class CartService implements ICartService {
         return null;
     }
 
+    /**
+     * Implemented removeCartData method to delete cart by id
+     * @param cartId - passing cartId param
+     */
     @Override
     public void removeCartData(int cartId) {
         cartRepository.deleteById(cartId);
     }
 
+    /**
+     * Implemented updateQuantity method to update book quantity
+     * @param cartId - passing cartId param
+     * @param quantity - passing quantity param
+     * @return
+     */
     @Override
     public Cart updateQuantity(int cartId, int quantity) {
         Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new UserRegistrationException("Cart Item with id " + cartId + " does not exists"));
@@ -51,6 +66,12 @@ public class CartService implements ICartService {
         return cartRepository.save(cart);
     }
 
+    /**
+     * Implemented updateCartData method to update book Data
+     * @param cartId
+     * @param cartDTO
+     * @return
+     */
     @Override
     public Cart updateCartData(int cartId, CartDTO cartDTO) {
         Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new UserRegistrationException("Cart Item with id " + cartId + " does not exists"));
@@ -58,11 +79,20 @@ public class CartService implements ICartService {
         return cartRepository.save(cart);
     }
 
+    /**
+     * Implemented getCartDataById method to find cart by id
+     * @param cartId - passing cartId param
+     * @return
+     */
     @Override
     public Cart getCartDataById(int cartId) {
         return cartRepository.findById(cartId).orElseThrow(() -> new UserRegistrationException("Cart Item with id " + cartId + " does not exists"));
     }
 
+    /**
+     * Implemented getCartData method to find all the carts
+     * @return
+     */
     public List<Cart> getCartData() {
         return cartRepository.findAll();
     }

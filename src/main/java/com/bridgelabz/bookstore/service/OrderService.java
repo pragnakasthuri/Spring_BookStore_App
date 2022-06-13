@@ -7,6 +7,7 @@ import com.bridgelabz.bookstore.model.Order;
 import com.bridgelabz.bookstore.model.UserRegistrationData;
 import com.bridgelabz.bookstore.repository.OrderRepository;
 import com.bridgelabz.bookstore.repository.UserRegistrationRepository;
+import com.bridgelabz.bookstore.util.TokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,14 @@ public class OrderService implements IOrderService {
     @Autowired
     BookService bookService;
 
+    @Autowired
+    private TokenUtil tokenUtil;
+
+    /**
+     * Implemented placeOrder method to place orders
+     * @param orderDTO - passing orderDTO param
+     * @return
+     */
     @Override
     public Order placeOrder(int userId, OrderDTO orderDTO) {
         Optional<UserRegistrationData> user = Optional.ofNullable(userRegistrationService.getUserRegistrationDataById(userId));
@@ -45,44 +54,46 @@ public class OrderService implements IOrderService {
         return null;
     }
 
+    /**
+     * Implemented cancelOrder method to cancel an order
+     * @param orderId - passing orderId param
+     * @return
+     */
     @Override
-    public String cancelOrder(int orderId, int userId) {
-        Optional<UserRegistrationData> isPresent = userRegistrationRepository.findById(userId);
-        if (isPresent.isPresent()) {
-            Optional<Order> order = orderRepository.findById(orderId);
-            if (order.isPresent()) {
-                order.get().setCancel(true);
-                orderRepository.save(order.get());
-                return "Cancel order Successful";
-            }
+    public Order cancelOrder(int orderId, int userId) {
+        Optional<Order> order = orderRepository.findById(orderId);
+        if (order.isPresent()) {
+            order.get().setCancel(true);
+            return orderRepository.save(order.get());
         }
-        return "cancel order not successful";
+        return null;
     }
 
+    /**
+     * Implemented getOrderById method to find order by id
+     * @param orderId - passing orderId param
+     * @return
+     */
     @Override
     public Order getOrderById(int orderId) {
         return orderRepository.findById(orderId).orElseThrow(()-> new UserRegistrationException("Get Call is not Successful"));
     }
 
+    /**
+     * Implemented getOrders method to find all orders
+     * @return
+     */
     @Override
     public List<Order> getOrders() {
-        List<Order> orders = orderRepository.findAll();
-        if (orders.isEmpty()) {
-            return null;
-        } else {
-            for (int i = 0; i < orders.size(); i++) {
-                int id = orders.get(i).getOrderId();
-                Optional<Order> orderByOrderId = orderRepository.findById(id);
-                if (orderByOrderId.isPresent()) {
-                    orderByOrderId.get().setCancel(false);
-                    orderRepository.save(orderByOrderId.get());
-                    return orders;
-                }
-            }
-        }
-        return null;
+        return orderRepository.findAll();
     }
 
+    /**
+     * Implemented updateOrder method to update the order
+     * @param orderId - passing order id as param
+     * @param order
+     * @return
+     */
     @Override
     public Order updateOrder(int orderId, OrderDTO order) {
         Order order1 = orderRepository.findById(orderId).orElseThrow(() -> new UserRegistrationException("Order update failed"));
@@ -93,5 +104,16 @@ public class OrderService implements IOrderService {
         order1.setAddress(order.getAddress());
         orderRepository.save(order1);
         return order1;
+    }
+
+    /**
+     * Implemented verifyOrder method to get the details of order
+     * @param token - passing token param
+     * @return
+     */
+    @Override
+    public Order verifyOrder(String token) {
+        Order orderData = this.getOrderById(tokenUtil.decodeToken(token));
+        return orderRepository.save(orderData);
     }
 }

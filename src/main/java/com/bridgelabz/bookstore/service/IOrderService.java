@@ -8,11 +8,13 @@ import java.util.List;
 public interface IOrderService {
     Order placeOrder(int userId, OrderDTO orderDTO);
 
-    String cancelOrder(int orderId,int userId);
+    Order cancelOrder(int orderId,int userId);
 
     Order updateOrder(int orderId, OrderDTO orderDTO);
 
     Order getOrderById(int userId);
 
     List<Order> getOrders();
+
+    Order verifyOrder(String token);
 }
