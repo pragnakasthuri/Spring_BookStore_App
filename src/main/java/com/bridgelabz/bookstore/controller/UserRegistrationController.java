@@ -3,7 +3,9 @@ package com.bridgelabz.bookstore.controller;
 import com.bridgelabz.bookstore.dto.LoginDTO;
 import com.bridgelabz.bookstore.dto.ResponseDTO;
 import com.bridgelabz.bookstore.dto.UserRegistrationDTO;
+import com.bridgelabz.bookstore.model.Email;
 import com.bridgelabz.bookstore.model.UserRegistrationData;
+import com.bridgelabz.bookstore.service.IEmailService;
 import com.bridgelabz.bookstore.service.IUserRegistrationService;
 import com.bridgelabz.bookstore.util.TokenUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -26,26 +28,49 @@ public class UserRegistrationController {
     private IUserRegistrationService userRegistrationService;
 
     @Autowired
+    private IEmailService emailService;
+
+    @Autowired
     private TokenUtil tokenUtil;
 
 
+    /***
+     * Implemented createUserRegistrationData to create user registration
+     * After registering a mail will send to the registered email id
+     * @param userRegistrationDTO - passing userRegistrationDTO as param
+     * @return
+     */
     @PostMapping("/register")
-    public ResponseEntity<ResponseDTO> addUserRegistrationData(@Valid @RequestBody UserRegistrationDTO UserRegistrationDTO) {
-        UserRegistrationData userRegistrationData = userRegistrationService.createUserRegistrationData(UserRegistrationDTO);
+    public ResponseEntity<ResponseDTO> addUserRegistrationData(@Valid @RequestBody UserRegistrationDTO userRegistrationDTO) {
+        UserRegistrationData userRegistrationData = userRegistrationService.createUserRegistrationData(userRegistrationDTO);
         String token = tokenUtil.createToken(userRegistrationData.getUserId());
+        Email email = new Email(userRegistrationData.getEmailId(), "Registered Successfully",
+                        "Hi " + userRegistrationData.getFirstName() + " " +userRegistrationData.getLastName() +
+                        ", Click the below link to verify \n" + emailService.getLink(token));
+        emailService.sendEmail(email);
         ResponseDTO responseDTO = new ResponseDTO("Added User Registration data Successfully", userRegistrationData, token);
         return new ResponseEntity<ResponseDTO>(responseDTO, HttpStatus.OK);
     }
 
-    @PutMapping("/update/{tokenId}")
-    public ResponseEntity<ResponseDTO> updateUserRegistrationData(@PathVariable("tokenId") String tokenId,
+    /***
+     * Implemented updateUserRegistrationData method to update user by id
+     * @param token - passing token as param
+     * @param userRegistrationDTO - passing userRegistrationDTO as param
+     * @return
+     */
+    @PutMapping("/update/{token}")
+    public ResponseEntity<ResponseDTO> updateUserRegistrationData(@PathVariable("token") String token,
                                                                   @Valid @RequestBody UserRegistrationDTO userRegistrationDTO) {
-        int userId = tokenUtil.decodeToken(tokenId);
-        UserRegistrationData userRegistrationData = userRegistrationService.updateUserRegistrationData(userId, userRegistrationDTO);
+        int tokenId = tokenUtil.decodeToken(token);
+        UserRegistrationData userRegistrationData = userRegistrationService.updateUserRegistrationData(tokenId, userRegistrationDTO);
         ResponseDTO responseDTO = new ResponseDTO("Updated User Registration Data for Id", userRegistrationData);
         return new ResponseEntity<ResponseDTO>(responseDTO, HttpStatus.OK);
     }
 
+    /***
+     * Implemented getUserRegistrationData method to get all the users from the database
+     * @return
+     */
     @GetMapping("/get")
     public ResponseEntity<ResponseDTO> getUserRegistrationData() {
         List<UserRegistrationData> userRegistrationDataList = userRegistrationService.getUserRegistrationData();
@@ -53,13 +78,24 @@ public class UserRegistrationController {
         return new ResponseEntity<ResponseDTO>(responseDTO, HttpStatus.OK);
     }
 
-    @GetMapping("/get/{userId}")
-    public ResponseEntity<ResponseDTO> getUserRegistrationDataById(@PathVariable("userId") int userId) {
-        UserRegistrationData userRegistrationData = userRegistrationService.getUserRegistrationDataById(userId);
+    /***
+     * Implemented getUserRegistrationDataById method to get user by id from database
+     * @param token - passing token as param
+     * @return
+     */
+    @GetMapping("/get/{token}")
+    public ResponseEntity<ResponseDTO> getUserRegistrationDataById(@PathVariable("token") String token) {
+        int tokenId = tokenUtil.decodeToken(token);
+        UserRegistrationData userRegistrationData = userRegistrationService.getUserRegistrationDataById(tokenId);
         ResponseDTO responseDTO = new ResponseDTO("Get Call Success for Id", userRegistrationData);
         return new ResponseEntity<ResponseDTO>(responseDTO, HttpStatus.OK);
     }
 
+    /***
+     * Implemented getUserByEmailId method to get user by email id from database
+     * @param emailId - passing email as param
+     * @return
+     */
     @GetMapping("/getbyemail/{emailId}")
     public ResponseEntity<ResponseDTO> getUserByEmailId(@PathVariable("emailId") String emailId) {
         UserRegistrationData userRegistrationData = userRegistrationService.getUserByEmailId(emailId);
@@ -67,13 +103,24 @@ public class UserRegistrationController {
         return new ResponseEntity<ResponseDTO>(responseDTO, HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete/{userId}")
-    public ResponseEntity<ResponseDTO> deleteUserRegistrationDataById(@PathVariable("userId") int userId) {
-        userRegistrationService.deleteUserRegistrationDataById(userId);
-        ResponseDTO response = new ResponseDTO("Delete call success for id ", "deleted id:" + userId);
+    /***
+     * Implemented deleteUserRegistrationDataById method to update user by id
+     * @param token - passing token as param
+     * @return
+     */
+    @DeleteMapping("/delete/{token}")
+    public ResponseEntity<ResponseDTO> deleteUserRegistrationDataById(@PathVariable("token") String token) {
+        int tokenId = tokenUtil.decodeToken(token);
+        userRegistrationService.deleteUserRegistrationDataById(tokenId);
+        ResponseDTO response = new ResponseDTO("Delete call success for id ", "deleted id:" + tokenId);
         return new ResponseEntity<ResponseDTO>(response, HttpStatus.OK);
     }
 
+    /***
+     * Implemented userLogin method for user login
+     * @param loginDTO - passing loginDTO as param
+     * @return
+     */
     @PostMapping("/login")
     public ResponseEntity<ResponseDTO> userLogin(@RequestBody LoginDTO loginDTO) {
         Optional<UserRegistrationData> login = userRegistrationService.userLogin(loginDTO);
@@ -83,6 +130,25 @@ public class UserRegistrationController {
         } else {
             ResponseDTO responseDTO = new ResponseDTO("User login not successful", login);
             return new ResponseEntity<ResponseDTO>(responseDTO, HttpStatus.ACCEPTED);
+        }
+    }
+
+    /***
+     * Implemented verifyUser method, while registering user a mail with verification link
+     * will send to the registered user email id, by clicking on the link user details is going to display
+     * @param token - passing token as param
+     * @return
+     */
+    @GetMapping("/verify/{token}")
+    public ResponseEntity<ResponseDTO> verifyUser(@PathVariable("token") String token) {
+        UserRegistrationData userRegistrationData = userRegistrationService.verifyUser(token);
+        if (userRegistrationData.isVerified()) {
+            ResponseDTO responseDTO = new ResponseDTO("User has been verified", userRegistrationData, token);
+            return new ResponseEntity<ResponseDTO>(responseDTO, HttpStatus.OK);
+        }
+        else {
+            ResponseDTO responseDTO = new ResponseDTO("ERROR : Invalid Token", null, token);
+            return new ResponseEntity<ResponseDTO>(responseDTO, HttpStatus.OK);
         }
     }
 }

@@ -21,6 +21,8 @@ public interface IUserRegistrationService {
     void deleteUserRegistrationDataById(int userId);
 
     Optional<UserRegistrationData> userLogin(LoginDTO loginDTO);
+
+    UserRegistrationData verifyUser(String token);
 }
 
 

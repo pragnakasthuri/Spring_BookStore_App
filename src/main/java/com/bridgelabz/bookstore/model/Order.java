@@ -13,7 +13,9 @@ import java.time.LocalDate;
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "order_id")
     private int orderId;
+
     private LocalDate orderDate;
     private int totalPrice;
     private int quantity;
